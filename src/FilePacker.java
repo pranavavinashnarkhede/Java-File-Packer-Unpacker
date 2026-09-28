@@ -3,6 +3,10 @@ import java.util.*;
 
 class FilePacker
 {
+    private int PackedFileCount = 0;
+    private int SkippedFileCount = 0;
+    private long TotalSize = 0;
+
     /*
     Function Name : pack
     Description   : Packs supported files from a folder into
@@ -11,8 +15,7 @@ class FilePacker
     Output        : Packed file
     */
 
-    public void pack(String FolderName, String PackedFileName)
-        throws Exception
+    public void pack(String FolderName, String PackedFileName) throws Exception
     {
         String header = "";
 
@@ -30,20 +33,17 @@ class FilePacker
         String extension = "";
         int dotIndex = 0;
 
-
         // Validate folder name
         if(FolderName == null || FolderName.trim().isEmpty())
         {
             throw new Exception("Folder name cannot be empty.");
         }
 
-
         // Validate packed file name
         if(PackedFileName == null || PackedFileName.trim().isEmpty())
         {
             throw new Exception("Packed file name cannot be empty.");
         }
-
 
         // Validate source folder
         File fobjfolder = new File(FolderName);
@@ -64,7 +64,7 @@ class FilePacker
 
         if(fobjpack.exists() && fobjpack.isDirectory())
         {
-            throw new Exception("The specified packed file path " + "is a directory.");
+            throw new Exception("The specified packed file path " + PackedFileName + " is a directory.");
         }
 
 
@@ -75,7 +75,6 @@ class FilePacker
         {
             throw new Exception("Unable to read the folder.");
         }
-
 
         /*
         Define the file extensions supported
@@ -99,6 +98,7 @@ class FilePacker
                 // Skip directories
                 if(!fArr[i].isFile())
                 {
+                    SkippedFileCount++;
                     continue;
                 }
 
@@ -139,9 +139,8 @@ class FilePacker
 
                     if(header.length() > 100)
                     {
-                        throw new Exception("File name is too long to store "+ "in packed file: "+ fArr[i].getName());
+                        throw new Exception("File name is too long to store in packed file: "+ fArr[i].getName());
                     }
-
 
                     /*
                     Add spaces so that every header
@@ -155,15 +154,13 @@ class FilePacker
                         header = header + " ";
                     }
 
-
                     bHeader = header.getBytes();
 
                     // Write the fixed-size header
                     foobj.write(bHeader);
 
                     // Open source file and close it automatically
-                    try(FileInputStream fiobj =
-                            new FileInputStream(fArr[i]))
+                    try(FileInputStream fiobj = new FileInputStream(fArr[i]))
                     {
                         /*
                         Read the source file in
@@ -185,26 +182,50 @@ class FilePacker
                             // Write transformed data to packed file
                             foobj.write(transformedBuffer, 0,iRet);
                         }
+
+                        PackedFileCount++;
+                        TotalSize = TotalSize + fArr[i].length();
+
                     }
 
                     // fiobj automatically closes here
 
                     header = "";
                 }
+                else
+                {
+                    SkippedFileCount++;
+                }
+
             }
         }
 
         // foobj automatically closes here
     }
 
+    public int getPackedFileCount()
+    {
+        return PackedFileCount;
+    }
+
+    public int getSkippedFileCount()
+    {
+        return SkippedFileCount;
+    }
+
+    public long getTotalSize()
+    {
+        return TotalSize;
+    }
+
     public static void main(String A[]) throws Exception
     {
         Scanner sobj = new Scanner(System.in);
 
-        System.out.println("----------------------------------------");
-        System.out.println("------------Java File Packer------------");
-        System.out.println("----------------------------------------");
-
+        System.out.println("========================================");
+        System.out.println("           JAVA FILE PACKER");
+        System.out.println("========================================");
+    
         System.out.print("Enter folder name: ");
         String FolderName = sobj.nextLine().trim();
 
@@ -218,7 +239,24 @@ class FilePacker
             pobj.pack(FolderName, PackedFileName);
 
             System.out.println();
-            System.out.println("Packing completed successfully!");
+
+            System.out.println("========================================");
+            System.out.println("           PACKING COMPLETED");
+            System.out.println("========================================");
+
+            System.out.println();
+            System.out.println("  Packed Files   : " + pobj.getPackedFileCount());
+            System.out.println("  Skipped Files  : " + pobj.getSkippedFileCount());
+            System.out.println("  Total Size     : " + pobj.getTotalSize() + " bytes");
+
+            System.out.println();
+            System.out.println("----------------------------------------");
+            System.out.println("  Packed File    : " + PackedFileName);
+            System.out.println("----------------------------------------");
+
+            System.out.println();
+            System.out.println("Thank you for using Java File Packer!");    
+
         }
         catch(Exception e)
         {

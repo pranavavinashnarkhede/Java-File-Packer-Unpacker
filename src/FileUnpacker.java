@@ -3,6 +3,10 @@ import java.util.*;
 
 class FileUnpacker
 {
+
+    private int ExtractedFileCount = 0;
+    private long TotalSize = 0;
+
     /*
     Function Name : unpack
     Description   : Extracts files from the packed file.
@@ -28,7 +32,6 @@ class FileUnpacker
         int iRet = 0;
         int i = 0;
 
-
         // Validate packed file name
         if(PackedFileName == null || PackedFileName.trim().isEmpty())
         {
@@ -49,7 +52,6 @@ class FileUnpacker
             throw new Exception("The specified path is not a packed file.");
         }
 
-
         // Open packed file and close it automatically
         try(FileInputStream fiobj = new FileInputStream(fpackobj))
         {
@@ -61,7 +63,6 @@ class FileUnpacker
             while(true)
             {
                 int headerBytesRead = 0;
-
 
                 // Read exactly 100 bytes for the header
                 while(headerBytesRead < 100)
@@ -172,7 +173,7 @@ class FileUnpacker
 
                         if(iRet == -1)
                         {
-                            throw new Exception("Unexpected end of packed file "+ "while reading: "+ NewFile.getName());
+                            throw new Exception("Unexpected end of packed file while reading: "+ NewFile.getName());
                         }
 
                         totalBytesRead = totalBytesRead + iRet;
@@ -193,10 +194,23 @@ class FileUnpacker
                     // Write the restored data to the extracted file
                     foobj.write(transformedBuffer, 0, fileSize);
 
+                    ExtractedFileCount++;
+                    TotalSize = TotalSize + fileSize;
+
                 } // Output stream automatically closed here
 
             }
         } // Input stream automatically closed here
+    }
+
+    public int getExtractedFileCount()
+    {
+        return ExtractedFileCount;
+    }
+
+    public long getTotalSize()
+    {
+        return TotalSize;
     }
 
 
@@ -210,13 +224,9 @@ class FileUnpacker
     {
         Scanner sobj = new Scanner(System.in);
 
-
-        System.out.println("----------------------------------------");
-
-        System.out.println("-----------Java File Unpacker-----------");
-
-        System.out.println("----------------------------------------");
-
+        System.out.println("========================================");
+        System.out.println("          JAVA FILE UNPACKER");
+        System.out.println("========================================");
 
         System.out.print("Enter packed file name: ");
 
@@ -224,13 +234,28 @@ class FileUnpacker
 
         try
         {
-            FileUnpacker uObj =new FileUnpacker();
+            FileUnpacker upobj =new FileUnpacker();
 
-            uObj.unpack(packedFileName);
+            upobj.unpack(packedFileName);
 
             System.out.println();
 
-            System.out.println("Unpacking completed successfully!");
+            System.out.println("========================================");
+            System.out.println("          UNPACKING COMPLETED");
+            System.out.println("========================================");
+
+            System.out.println();
+            System.out.println("  Files Extracted : "+ upobj.getExtractedFileCount());
+
+            System.out.println("  Total Size      : "+ String.format("%.2f",upobj.getTotalSize() / 1024.0)+ " KB");
+
+            System.out.println();
+            System.out.println("----------------------------------------");
+            System.out.println("  Packed File     : " + packedFileName);
+            System.out.println("----------------------------------------");
+
+            System.out.println("Thank you for using Java File Unpacker!");
+
         }
         catch(Exception e)
         {
