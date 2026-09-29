@@ -3,6 +3,8 @@ import java.util.*;
 
 class FilePacker
 {
+    private static final byte XOR_KEY = 65;
+
     private int PackedFileCount = 0;
     private int SkippedFileCount = 0;
     private long TotalSize = 0;
@@ -26,8 +28,6 @@ class FilePacker
         int i = 0, j = 0;
         int iRet = 0;
         int Size = 0;
-
-        byte XOR_KEY = 65;
 
         String str = null;
         String extension = "";

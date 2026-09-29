@@ -3,8 +3,10 @@ import java.util.*;
 
 class FileUnpacker
 {
+    private static final byte XOR_KEY = 65;
 
     private int ExtractedFileCount = 0;
+    private int SkippedFileCount = 0;
     private long TotalSize = 0;
 
     /*
@@ -14,7 +16,7 @@ class FileUnpacker
     Output        : Extracted files
     */
 
-    public void unpack(String PackedFileName) throws Exception
+    public void unpack(String PackedFileName , Scanner sobj) throws Exception
     {
         File fpackobj = null;
 
@@ -26,8 +28,6 @@ class FileUnpacker
 
         byte Buffer[] = null;
         byte transformedBuffer[] = null;
-
-        byte XOR_KEY = 65;
 
         int iRet = 0;
         int i = 0;
@@ -142,15 +142,31 @@ class FileUnpacker
                 // Prevent accidental overwrite
                 if(NewFile.exists())
                 {
-                    throw new Exception("File already exists: "+ NewFile.getName());
+                    System.out.println("File already exists : "+NewFile.getName());
+                    System.out.println();
+
+                    System.out.println("What do you want to do (1 -> Overwrite . 2-> Skip . 3-> Cancel) : ");
+                    int choice = sobj.nextInt();
+
+                    if(choice == 1)
+                    {
+                        // noting to write here , at the end file is overwrite
+                    }
+                    else if(choice == 2)
+                    {
+                        SkippedFileCount++;
+                        continue ;
+                    }
+                    else if( choice == 3)
+                    {
+                        break;
+                    }    
+                    else
+                    {
+                        System.out.println("Invalid choice");
+                    }
+                
                 }
-
-
-                if(!NewFile.createNewFile())
-                {
-                    throw new Exception("Unable to create file: "+ NewFile.getName());
-                }
-
 
                 // Open output file and close it automatically
                 try(FileOutputStream foobj = new FileOutputStream(NewFile))
@@ -213,6 +229,11 @@ class FileUnpacker
         return TotalSize;
     }
 
+    public int getSkippedFileCount()
+    {
+        return SkippedFileCount;
+    }
+
 
     /*
     Function Name : main
@@ -222,6 +243,7 @@ class FileUnpacker
 
     public static void main(String A[]) throws Exception
     {
+
         Scanner sobj = new Scanner(System.in);
 
         System.out.println("========================================");
@@ -236,7 +258,7 @@ class FileUnpacker
         {
             FileUnpacker upobj =new FileUnpacker();
 
-            upobj.unpack(packedFileName);
+            upobj.unpack(packedFileName , sobj);
 
             System.out.println();
 
@@ -246,7 +268,7 @@ class FileUnpacker
 
             System.out.println();
             System.out.println("  Files Extracted : "+ upobj.getExtractedFileCount());
-
+            System.out.println("  Files Skipped   : "+ upobj.getSkippedFileCount());
             System.out.println("  Total Size      : "+ String.format("%.2f",upobj.getTotalSize() / 1024.0)+ " KB");
 
             System.out.println();
@@ -263,8 +285,6 @@ class FileUnpacker
 
             System.out.println("Unpacking failed: "+ e.getMessage());
         }
-
-        sobj.close();
     }
 }
 
