@@ -67,6 +67,23 @@ class FilePacker
             throw new Exception("The specified packed file path " + PackedFileName + " is a directory.");
         }
 
+        // Extract the file name of packed file name
+        String fileName = fobjpack.getName();
+
+        dotIndex = fileName.lastIndexOf('.');
+
+        extension = "";
+
+        if(dotIndex != -1)
+        {
+            // get the extension of packed file
+            extension = fileName.substring(dotIndex+1).toLowerCase();
+        }
+
+        if(!extension.equals("pak"))
+        {
+            throw new Exception("Invalid packed file . Expected a .pak file");
+        }
 
         // Get files present in the source folder
         File fArr[] = fobjfolder.listFiles();
