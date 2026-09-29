@@ -39,9 +39,27 @@ class FileUnpacker
             throw new Exception("Packed file name cannot be empty.");
         }
 
-
         // Validate packed file
         fpackobj = new File(PackedFileName);
+
+        // Extract the file name of packed file name
+        String packedFileName = fpackobj.getName();
+
+        // get the starting index of extension
+        int dotIndex = packedFileName.lastIndexOf('.');
+
+        String extension = "";
+
+        if(dotIndex != -1)
+        {
+            // get the extension of packed file
+            extension = packedFileName.substring(dotIndex+1).toLowerCase();
+        }
+
+        if(!extension.equals("pak"))
+        {
+            throw new Exception("Invalid packed file . Expected a .pak file");
+        }
 
         if(!fpackobj.exists())
         {
@@ -147,6 +165,7 @@ class FileUnpacker
                 // Create the extracted file
                 NewFile = extractedFile ;
 
+                boolean skip = false;
 
                 // Prevent accidental overwrite
                 if(NewFile.exists())
@@ -154,28 +173,42 @@ class FileUnpacker
                     System.out.println("File already exists : "+NewFile.getName());
                     System.out.println();
 
-                    System.out.println("What do you want to do (1 -> Overwrite . 2-> Skip . 3-> Cancel) : ");
-                    int choice = sobj.nextInt();
+                    while(true)
+                    {
+                        System.out.println("What do you want to do (1 -> Overwrite . 2-> Skip . 3-> Cancel) : ");
+                        int choice = sobj.nextInt();
 
-                    if(choice == 1)
-                    {
-                        // noting to write here , at the end file is overwrite
+                        if(choice == 1)
+                        {
+                            break;
+                        }
+                        else if(choice == 2)
+                        {
+                            SkippedFileCount++;
+                            skip = true;
+                            break;
+                        }
+                        else if(choice == 3)
+                        {
+                            isCancelled = true;
+                            break;
+                        }    
+                        else
+                        {
+                            System.out.println("Invalid choice");
+                        }
                     }
-                    else if(choice == 2)
+
+                    if(skip)
                     {
-                        SkippedFileCount++;
-                        continue ;
+                        continue;
                     }
-                    else if( choice == 3)
+
+                    if(isCancelled)
                     {
-                        isCancelled = true;
                         break;
-                    }    
-                    else
-                    {
-                        System.out.println("Invalid choice");
                     }
-                
+
                 }
 
                 // Open output file and close it automatically
@@ -247,7 +280,6 @@ class FileUnpacker
     {
         return isCancelled;
     }
-
 
     /*
     Function Name : main
