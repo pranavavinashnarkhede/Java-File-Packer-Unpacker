@@ -99,6 +99,7 @@ class FilePacker
 
                 if(fArr[i].getCanonicalPath().equals(fobjpack.getCanonicalPath()))
                 {
+                    SkippedFileCount++;
                     continue;
                 }
                 
@@ -204,6 +205,11 @@ class FilePacker
                     SkippedFileCount++;
                 }
 
+            }
+
+            if(PackedFileCount == 0)
+            {
+                throw new Exception("No supported files found in the specified folder .");
             }
         }
 
