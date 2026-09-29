@@ -95,6 +95,13 @@ class FilePacker
         {
             for(i = 0; i < fArr.length; i++)
             {
+                // skip the output file itself from packing activity
+
+                if(fArr[i].getCanonicalPath().equals(fobjpack.getCanonicalPath()))
+                {
+                    continue;
+                }
+                
                 // Skip directories
                 if(!fArr[i].isFile())
                 {

@@ -8,6 +8,7 @@ class FileUnpacker
     private int ExtractedFileCount = 0;
     private int SkippedFileCount = 0;
     private long TotalSize = 0;
+    private boolean isCancelled = false ;
 
     /*
     Function Name : unpack
@@ -104,16 +105,24 @@ class FileUnpacker
 
 
                 // Validate header format
-                if(Tokens.length < 2)
+                if(Tokens.length != 2)
                 {
-                    throw new Exception("Invalid packed file format.");
+                    throw new Exception("Invalid packed file header.");
                 }
 
+                String fileName = Tokens[0].trim();
 
                 // Validate extracted file name
-                if(Tokens[0].trim().isEmpty())
+                if(fileName.isEmpty())
                 {
                     throw new Exception( "Invalid file name in packed file.");
+                }
+
+                File extractedFile = new File(fileName);
+
+                if(!extractedFile.getName().equals(fileName))
+                {
+                    throw new Exception("Invalid file path in packed file : "+fileName);
                 }
 
                 int fileSize;
@@ -136,7 +145,7 @@ class FileUnpacker
 
 
                 // Create the extracted file
-                NewFile = new File(Tokens[0].trim());
+                NewFile = extractedFile ;
 
 
                 // Prevent accidental overwrite
@@ -159,6 +168,7 @@ class FileUnpacker
                     }
                     else if( choice == 3)
                     {
+                        isCancelled = true;
                         break;
                     }    
                     else
@@ -174,7 +184,6 @@ class FileUnpacker
                     Buffer = new byte[fileSize];
 
                     transformedBuffer = new byte[fileSize];
-
 
                     /*
                     Read the complete file data
@@ -234,6 +243,11 @@ class FileUnpacker
         return SkippedFileCount;
     }
 
+    public boolean isCancelled()
+    {
+        return isCancelled;
+    }
+
 
     /*
     Function Name : main
@@ -241,7 +255,7 @@ class FileUnpacker
                     and starts the unpacking process.
     */
 
-    public static void main(String A[]) throws Exception
+    public static void main(String A[])
     {
 
         Scanner sobj = new Scanner(System.in);
@@ -260,23 +274,35 @@ class FileUnpacker
 
             upobj.unpack(packedFileName , sobj);
 
-            System.out.println();
+            if(upobj.isCancelled())
+            {
+                System.out.println();
+                System.out.println("========================================");
+                System.out.println("          UNPACKING CANCELLED");
+                System.out.println("========================================");
 
-            System.out.println("========================================");
-            System.out.println("          UNPACKING COMPLETED");
-            System.out.println("========================================");
+            }
+            else
+            {
+                System.out.println();
 
-            System.out.println();
-            System.out.println("  Files Extracted : "+ upobj.getExtractedFileCount());
-            System.out.println("  Files Skipped   : "+ upobj.getSkippedFileCount());
-            System.out.println("  Total Size      : "+ String.format("%.2f",upobj.getTotalSize() / 1024.0)+ " KB");
+                System.out.println("========================================");
+                System.out.println("          UNPACKING COMPLETED");
+                System.out.println("========================================");
 
-            System.out.println();
-            System.out.println("----------------------------------------");
-            System.out.println("  Packed File     : " + packedFileName);
-            System.out.println("----------------------------------------");
+                System.out.println();
+                System.out.println("  Files Extracted : "+ upobj.getExtractedFileCount());
+                System.out.println("  Files Skipped   : "+ upobj.getSkippedFileCount());
+                System.out.println("  Total Size      : "+ String.format("%.2f",upobj.getTotalSize() / 1024.0)+ " KB");
 
-            System.out.println("Thank you for using Java File Unpacker!");
+                System.out.println();
+                System.out.println("----------------------------------------");
+                System.out.println("  Packed File     : " + packedFileName);
+                System.out.println("----------------------------------------");
+
+                System.out.println("Thank you for using Java File Unpacker!");
+
+            }
 
         }
         catch(Exception e)
