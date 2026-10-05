@@ -80,6 +80,11 @@ class FilePacker
             extension = fileName.substring(dotIndex+1).toLowerCase();
         }
 
+        if(dotIndex == 0)
+        {
+            throw new Exception("Invalid packed file name : There is no actual filename");
+        }
+
         if(!extension.equals("pak"))
         {
             throw new Exception("Invalid packed file . Expected a .pak file");
