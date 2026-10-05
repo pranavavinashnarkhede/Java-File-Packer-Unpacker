@@ -178,6 +178,13 @@ class FileUnpacker
                         System.out.println("What do you want to do (1 -> Overwrite . 2-> Skip . 3-> Cancel) : ");
                         int choice = sobj.nextInt();
 
+                        if(choice < 1 || choice > 3)
+                        {
+                            System.out.println("Invalid Choice");
+                            System.out.println("Please Enter Valid Choice : ");
+                            continue;
+                        }
+
                         if(choice == 1)
                         {
                             break;
