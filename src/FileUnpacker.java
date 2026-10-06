@@ -42,6 +42,12 @@ class FileUnpacker
         // Validate packed file
         fpackobj = new File(PackedFileName);
 
+        // if PackedFile length is less than 100 means it is invalid PackedFile
+        if(fpackobj.length() < 100)
+        {
+            throw new Exception("Invalid Packed File");
+        }
+
         // Extract the file name of packed file name
         String packedFileName = fpackobj.getName();
 
@@ -102,7 +108,6 @@ class FileUnpacker
                     break;
                 }
 
-
                 // Header must contain exactly 100 bytes
                 if(headerBytesRead < 100)
                 {
@@ -120,7 +125,6 @@ class FileUnpacker
 
                 // Extract file name and file size
                 Tokens = strHeader.split("#");
-
 
                 // Validate header format
                 if(Tokens.length != 2)
@@ -175,9 +179,20 @@ class FileUnpacker
 
                     while(true)
                     {
+                        int choice = 0 ;
+                        
                         System.out.println("What do you want to do (1 -> Overwrite . 2-> Skip . 3-> Cancel) : ");
-                        int choice = sobj.nextInt();
-
+                        
+                        if(sobj.hasNextInt())
+                        {
+                            choice = sobj.nextInt();
+                        }
+                        else
+                        {
+                            System.out.println("Please enter a number.");
+                            sobj.next();   // remove the invalid input
+                        }
+                        
                         if(choice < 1 || choice > 3)
                         {
                             System.out.println("Invalid Choice");
@@ -221,9 +236,9 @@ class FileUnpacker
                 // Open output file and close it automatically
                 try(FileOutputStream foobj = new FileOutputStream(NewFile))
                 {
-                    Buffer = new byte[fileSize];
+                    Buffer = new byte[1024];
 
-                    transformedBuffer = new byte[fileSize];
+                    transformedBuffer = new byte[1024];
 
                     /*
                     Read the complete file data
@@ -234,7 +249,7 @@ class FileUnpacker
 
                     while(totalBytesRead < fileSize)
                     {
-                        iRet = fiobj.read(Buffer, totalBytesRead, fileSize - totalBytesRead);
+                        iRet = fiobj.read(Buffer, 0, Math.min(Buffer.length , fileSize - totalBytesRead));
 
                         if(iRet == -1)
                         {
@@ -242,22 +257,22 @@ class FileUnpacker
                         }
 
                         totalBytesRead = totalBytesRead + iRet;
-                    }
+
+                        /*
+                            Read the file data in chunks
+                            according to the size stored in the header.
+                        */
+
+                        for(i = 0; i < iRet; i++)
+                        {
+                            transformedBuffer[i] = (byte)(Buffer[i] ^ XOR_KEY);
+                        }
 
 
-                    /*
-                    Reverse the XOR transformation
-                    applied during packing.
-                    */
+                        // Write the restored data to the extracted file
+                        foobj.write(transformedBuffer, 0, iRet);
 
-                    for(i = 0; i < fileSize; i++)
-                    {
-                        transformedBuffer[i] = (byte)(Buffer[i] ^ XOR_KEY);
-                    }
-
-
-                    // Write the restored data to the extracted file
-                    foobj.write(transformedBuffer, 0, fileSize);
+                    }                    
 
                     ExtractedFileCount++;
                     TotalSize = TotalSize + fileSize;
