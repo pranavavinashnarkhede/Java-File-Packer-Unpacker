@@ -282,7 +282,7 @@ class FilePacker
             System.out.println();
             System.out.println("  Packed Files   : " + pobj.getPackedFileCount());
             System.out.println("  Skipped Files  : " + pobj.getSkippedFileCount());
-            System.out.println("  Total Size     : " + pobj.getTotalSize() + " bytes");
+            System.out.println("  Total Size      : "+ String.format("%.2f",pobj.getTotalSize() / 1024.0)+ " KB");
 
             System.out.println();
             System.out.println("----------------------------------------");
